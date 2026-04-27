@@ -2,13 +2,22 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Generador de Links Egoz</title>
+    <title>Generador de Links Egoz Pro</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; }
-        input, select { margin-bottom: 10px; padding: 10px; width: 100%; box-sizing: border-box; }
-        button { background: #0070f3; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
-        #output { background: #000; color: #0f0; padding: 15px; margin-top: 20px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; }
+        body { font-family: sans-serif; background: #121212; color: white; padding: 40px; }
+        /* Aumentado el ancho máximo y el padding */
+        .container { max-width: 845px; margin: auto; background: #1e1e1e; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h2 { margin-top: 0; color: #0070f3; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #ccc; }
+        input { margin-bottom: 20px; padding: 12px; width: 100%; box-sizing: border-box; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 5px; }
+        
+        .buttons { display: flex; gap: 10px; }
+        button { flex: 1; background: #0070f3; color: white; border: none; padding: 15px; cursor: pointer; border-radius: 5px; font-weight: bold; transition: background 0.3s; }
+        button:hover { background: #005bc4; }
+        #copyBtn { background: #28a745; display: none; } /* Botón de copiar oculto inicialmente */
+        #copyBtn:hover { background: #218838; }
+
+        #output { background: #000; color: #0f0; padding: 20px; margin-top: 20px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; font-size: 14px; border: 1px solid #333; overflow-x: auto; min-height: 50px; }
     </style>
 </head>
 <body>
@@ -22,38 +31,54 @@
         <input type="text" id="user" value="Egoz12">
         <input type="text" id="repo" value="image-egoz">
 
-        <button onclick="generarLinks()">Generar Links de esta carpeta</button>
+        <div class="buttons">
+            <button onclick="generarLinks()">Generar Links</button>
+            <button id="copyBtn" onclick="copiarAlPortapapeles()">Copiar todo al portapapeles</button>
+        </div>
 
         <div id="output">Los links aparecerán aquí...</div>
     </div>
 
     <script>
         function generarLinks() {
+            const extraPath = "juegos/"; 
             const user = document.getElementById('user').value;
             const repo = document.getElementById('repo').value;
             const files = document.getElementById('folderInput').files;
             const output = document.getElementById('output');
-            
+            const copyBtn = document.getElementById('copyBtn');
+
             if (files.length === 0) {
-                alert("¡Selecciona una carpeta primero!");
+                alert("Primero selecciona una carpeta.");
                 return;
             }
 
             let links = "";
-            
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                // El webkitRelativePath nos da la ruta tipo "juegos/black solus 1/imagen.png"
-                let path = file.webkitRelativePath;
-                
-                // Limpiamos los espacios para la URL
-                let cleanPath = path.replace(/ /g, "%20");
-                
-                const finalUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/${cleanPath}`;
+                let path = file.webkitRelativePath; 
+                let cleanPath = path.split('/').map(segmento => encodeURIComponent(segmento)).join('/');
+                const finalUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/${extraPath}${cleanPath}`;
                 links += finalUrl + "\n";
             }
+
+            output.innerText = links.trim();
+            copyBtn.style.display = "block"; // Mostrar botón de copiar
+            copyBtn.innerText = "Copiar todo al portapapeles"; // Resetear texto si se genera de nuevo
+        }
+
+        function copiarAlPortapapeles() {
+            const text = document.getElementById('output').innerText;
+            const btn = document.getElementById('copyBtn');
             
-            output.innerText = links;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.innerText = "¡Copiado! ✅";
+                setTimeout(() => {
+                    btn.innerText = "Copiar todo al portapapeles";
+                }, 2000);
+            }).catch(err => {
+                alert("Error al copiar: " + err);
+            });
         }
     </script>
 </body>
