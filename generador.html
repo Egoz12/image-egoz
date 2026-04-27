@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Links Egoz</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; }
+        input, select { margin-bottom: 10px; padding: 10px; width: 100%; box-sizing: border-box; }
+        button { background: #0070f3; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+        #output { background: #000; color: #0f0; padding: 15px; margin-top: 20px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🚀 Generador de Links GitHub + jsDelivr</h2>
+        
+        <label>1. Selecciona la carpeta del juego en tu PC:</label>
+        <input type="file" id="folderInput" webkitdirectory directory multiple>
+
+        <label>2. Confirma tu usuario y repo:</label>
+        <input type="text" id="user" value="Egoz12">
+        <input type="text" id="repo" value="image-egoz">
+
+        <button onclick="generarLinks()">Generar Links de esta carpeta</button>
+
+        <div id="output">Los links aparecerán aquí...</div>
+    </div>
+
+    <script>
+        function generarLinks() {
+            const user = document.getElementById('user').value;
+            const repo = document.getElementById('repo').value;
+            const files = document.getElementById('folderInput').files;
+            const output = document.getElementById('output');
+            
+            if (files.length === 0) {
+                alert("¡Selecciona una carpeta primero!");
+                return;
+            }
+
+            let links = "";
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                // El webkitRelativePath nos da la ruta tipo "juegos/black solus 1/imagen.png"
+                let path = file.webkitRelativePath;
+                
+                // Limpiamos los espacios para la URL
+                let cleanPath = path.replace(/ /g, "%20");
+                
+                const finalUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/${cleanPath}`;
+                links += finalUrl + "\n";
+            }
+            
+            output.innerText = links;
+        }
+    </script>
+</body>
+</html>
